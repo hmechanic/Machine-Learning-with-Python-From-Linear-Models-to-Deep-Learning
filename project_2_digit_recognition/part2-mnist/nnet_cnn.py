@@ -13,6 +13,8 @@ import utils
 from utils import *
 from train_utils import batchify_data, run_epoch, train_model, Flatten
 
+
+
 def main():
     # Load the dataset
     num_classes = 10
@@ -45,8 +47,15 @@ def main():
     model = nn.Sequential(
               nn.Conv2d(1, 32, (3, 3)),
               nn.ReLU(),
+              nn.Conv2d(32, 64, (3, 3)),
+              nn.ReLU(),
               nn.MaxPool2d((2, 2)),
+              nn.Flatten(),
+              nn.LazyLinear(128),
+              nn.Dropout(p=0.5),
+              nn.Linear(128, 10)
             )
+    
     ##################################
 
     train_model(train_batches, dev_batches, model, nesterov=True)

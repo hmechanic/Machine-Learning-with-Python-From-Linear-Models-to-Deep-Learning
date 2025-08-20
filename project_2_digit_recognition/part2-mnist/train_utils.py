@@ -6,6 +6,8 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Using device:", device)
 
 class Flatten(nn.Module):
     """A custom layer that views an input as 1D."""
@@ -28,13 +30,16 @@ def batchify_data(x_data, y_data, batch_size):
 
 def compute_accuracy(predictions, y):
     """Computes the accuracy of predictions against the gold labels, y."""
-    return np.mean(np.equal(predictions.numpy(), y.numpy()))
+    correct = (predictions == y).float().mean()
+    return correct.item()
 
 
 # Training Procedure
 def train_model(train_data, dev_data, model, lr=0.01, momentum=0.9, nesterov=False, n_epochs=30):
     """Train a model for N epochs given data and hyper-params."""
     # We optimize with SGD
+    model = model.to(device)
+    
     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, nesterov=nesterov)
 
     for epoch in range(1, 11):
@@ -65,7 +70,7 @@ def run_epoch(data, model, optimizer):
     for batch in tqdm(data):
         # Grab x and y
         x, y = batch['x'], batch['y']
-
+        x, y = x.to(device), y.to(device)
         # Get output predictions
         out = model(x)
 
