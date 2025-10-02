@@ -92,11 +92,13 @@ def perceptron_single_step_update(
         the updated offset parameter `theta_0` as a floating point number
     """
     # Si algo se agrega la verificación para actualizar:
-    # update_crit = labels[i] * (np.dot(theta, feature_matrix[i]) + theta_0)
-    #if update_crit <= 0
-
-    new_theta = current_theta + label * feature_vector
-    new_theta_0 = current_theta_0 + label
+    update_crit = label * (np.dot(current_theta, feature_vector) + current_theta_0)
+    if update_crit <= 0:
+        new_theta = current_theta + label * feature_vector
+        new_theta_0 = current_theta_0 + label
+    else:
+        new_theta = current_theta
+        new_theta_0 = current_theta_0
 
     return (new_theta, new_theta_0)
     
@@ -300,6 +302,10 @@ def classify(feature_matrix, theta, theta_0):
         should be considered a positive classification.
     """
     # Your code here
+    
+    epsilon = 1e-6
+    
+    feature_matrix[np.abs(feature_matrix) < epsilon] = 0
     
     scores = np.dot(feature_matrix, theta) + theta_0
     return np.where(scores > 0, 1, -1)
